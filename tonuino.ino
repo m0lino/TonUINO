@@ -3,10 +3,10 @@
   =====================
 
   Button B0 (by default pin A0, middle button on the original TonUINO): play/pause
-  Button B1 (by default pin A1, right button on the original TonUINO): volume up
-  Button B2 (by default pin A2, left button on the original TonUINO): volume down
-  Button B3 (by default pin A3, optional): previous track
-  Button B4 (by default pin A4, optional): next track
+  Button B1 (by default pin A4, right button on the original TonUINO): volume up
+  Button B2 (by default pin A3, left button on the original TonUINO): volume down
+  Button B3 (by default pin A1, optional): previous track
+  Button B4 (by default pin A2, optional): next track
 
   additional button actions:
   ==========================
@@ -217,7 +217,7 @@
 */
 
 // uncomment the below line to enable five button support
-// #define FIVEBUTTONS
+ #define FIVEBUTTONS
 
 // uncomment the below line to enable ir remote support
 // #define IRREMOTE
@@ -228,14 +228,14 @@
 // uncomment ONE OF THE BELOW TWO LINES to enable status led support
 // the first enables support for a vanilla led
 // the second enables support for ws281x led(s)
-// #define STATUSLED
+ #define STATUSLED
 // #define STATUSLEDRGB
 
 // uncomment the below line to enable low voltage shutdown support
-// #define LOWVOLTAGE
+ #define LOWVOLTAGE
 
 // uncomment the below line to flip the shutdown pin logic
-// #define POLOLUSWITCH
+ #define POLOLUSWITCH
 
 // include required libraries
 #include <avr/sleep.h>
@@ -260,9 +260,9 @@ using namespace ace_button;
 #endif
 
 // include additional library if low voltage shutdown support is enabled
-#if defined LOWVOLTAGE
-#include <Vcc.h>
-#endif
+// #if defined LOWVOLTAGE
+// #include <Vcc.h>
+// #endif
 
 // playback modes
 enum {NOMODE, STORY, ALBUM, PARTY, SINGLE, STORYBOOK, VSTORY, VALBUM, VPARTY};
@@ -294,6 +294,9 @@ const uint8_t mp3BusyPin = 4;                       // reports play state of DFP
 #if defined IRREMOTE
 const uint8_t irReceiverPin = 5;                    // pin used for the ir receiver
 #endif
+#if defined LOWVOLTAGE
+const uint8_t voltagecontrolPin = A7;                // pin used for measuring the battery voltage
+#endif
 #if defined STATUSLED ^ defined STATUSLEDRGB
 const uint8_t statusLedPin = 6;                     // pin used for vanilla status led or ws281x status led(s)
 const uint8_t statusLedCount = 1;                   // number of ws281x status led(s)
@@ -303,11 +306,11 @@ const uint8_t shutdownPin = 7;                      // pin used to shutdown the 
 const uint8_t nfcResetPin = 9;                      // used for spi communication to nfc module
 const uint8_t nfcSlaveSelectPin = 10;               // used for spi communication to nfc module
 const uint8_t button0Pin = A0;                      // middle button
-const uint8_t button1Pin = A1;                      // right button
-const uint8_t button2Pin = A2;                      // left button
+const uint8_t button1Pin = A4;                      // right button
+const uint8_t button2Pin = A3;                      // left button
 #if defined FIVEBUTTONS
-const uint8_t button3Pin = A3;                      // optional 4th button
-const uint8_t button4Pin = A4;                      // optional 5th button
+const uint8_t button3Pin = A1;                      // optional 4th button
+const uint8_t button4Pin = A2;                      // optional 5th button
 #endif
 const uint16_t buttonClickDelay = 1000;             // time during which a button press is still a click (in milliseconds)
 const uint16_t buttonShortLongPressDelay = 2000;    // time after which a button press is considered a long press (in milliseconds)
@@ -354,9 +357,9 @@ const uint8_t irRemoteCodeCount = sizeof(irRemoteCodes) / (2 * irRemoteCount);
 
 #if defined LOWVOLTAGE
 // define constants for shutdown feature
-const float shutdownMinVoltage = 4.4;                        // minimum expected voltage level (in volts)
-const float shutdownWarnVoltage = 4.8;                       // warning voltage level (in volts)
-const float shutdownMaxVoltage = 5.0;                        // maximum expected voltage level (in volts)
+const float shutdownMinVoltage = 8.0;                        // minimum expected voltage level (in volts)
+const float shutdownWarnVoltage = 9.0;                       // warning voltage level (in volts)
+const float shutdownMaxVoltage = 12.0;                       // maximum expected voltage level (in volts)
 const float shutdownVoltageCorrection = 1.0 / 1.0;           // voltage measured by multimeter divided by reported voltage
 #endif
 
@@ -540,7 +543,10 @@ WS2812 rgbLed(statusLedCount);                                                //
 #endif
 
 #if defined LOWVOLTAGE
-Vcc shutdownVoltage(shutdownVoltageCorrection);                               // create Vcc instance
+// Vcc shutdownVoltage(shutdownVoltageCorrection);                               // create Vcc instance
+float getCurrentVoltage() {
+  return analogRead(voltagecontrolPin)*50.0/1024.0*shutdownVoltageCorrection;
+}
 #endif
 
 void setup() {
@@ -598,10 +604,10 @@ void setup() {
   pinMode(mp3BusyPin, INPUT);
 
   Serial.print(F("init"));
-  pinMode(button0Pin, INPUT_PULLUP);
+  pinMode(button0Pin, INPUT);
   pinMode(button1Pin, INPUT_PULLUP);
   pinMode(button2Pin, INPUT_PULLUP);
-  button0.init(button0Pin, HIGH, 0);
+  button0.init(button0Pin, LOW, 0);
   button1.init(button1Pin, HIGH, 1);
   button2.init(button2Pin, HIGH, 2);
 #if defined FIVEBUTTONS
@@ -653,10 +659,10 @@ void setup() {
   Serial.print(shutdownMinVoltage);
   Serial.print(F("V"));
   Serial.print(F(" cu-"));
-  Serial.print(shutdownVoltage.Read_Volts());
+  Serial.print(getCurrentVoltage());
   Serial.print(F("V ("));
-  Serial.print(shutdownVoltage.Read_Perc(shutdownMinVoltage, shutdownMaxVoltage));
-  Serial.println(F("%)"));
+//  Serial.print(shutdownVoltage.Read_Perc(shutdownMinVoltage, shutdownMaxVoltage));
+//  Serial.println(F("%)"));
 #endif
 
   // hold down all three buttons while powering up: erase the eeprom contents
@@ -691,13 +697,13 @@ void loop() {
 
 #if defined LOWVOLTAGE
   // if low voltage level is reached, store progress and shutdown
-  if (shutdownVoltage.Read_Volts() <= shutdownMinVoltage) {
+  if (getCurrentVoltage() <= shutdownMinVoltage) {
     if (playback.currentTag.mode == STORYBOOK) EEPROM.update(playback.currentTag.folder, playback.playList[playback.playListItem - 1]);
     mp3.playMp3FolderTrack(808);
     waitPlaybackToFinish(255, 0, 0, 100);
     shutdownTimer(SHUTDOWN);
   }
-  else if (shutdownVoltage.Read_Volts() <= shutdownWarnVoltage) {
+  else if (getCurrentVoltage() <= shutdownWarnVoltage) {
 #if defined STATUSLED ^ defined STATUSLEDRGB
     statusLedUpdate(BLINK, 255, 0, 0, 100);
 #endif
