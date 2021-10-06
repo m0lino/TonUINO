@@ -120,7 +120,7 @@
   1) Connect a vanilla led to pin 6 and uncomment the '#define STATUSLED' below.
      TonUINO will signal various status information, for example:
 
-     - Pulse slowly when TonUINO is idle.
+     - Dimmed when TonUINO is idle.
      - Solid when TonUINO is playing a title.
      - Blink every 500ms when interactive in menus etc.
      - Blink every 100ms if the LOWVOLTAGE feature is active and the battery is low.
@@ -133,7 +133,7 @@
      the '#define STATUSLEDRGB' below. TonUINO will signal various status information
      in different patterns and colors, for example:
 
-     - Pulse slowly green when TonUINO is idle.
+     - Dimmed green when TonUINO is idle.
      - Solid green when TonUINO is playing a title.
      - Blink yellow every 500ms when interactive in menus etc.
      - Blink red every 100ms if the LOWVOLTAGE feature is active and the battery is low.
@@ -285,7 +285,7 @@ enum {START, STOP, CHECK, SHUTDOWN};
 enum {READ, WRITE, MIGRATE, RESET, RESET_PROGRESS};
 
 // status led actions
-enum {OFF, SOLID, PULSE, BLINK, BURST2, BURST4, BURST8};
+enum {OFF, SOLID, DIMMED, PULSE, BLINK, BURST2, BURST4, BURST8};
 
 // define general configuration constants
 const uint8_t mp3SerialRxPin = 2;                   // mp3 serial rx, wired to tx pin of DFPlayer Mini
@@ -711,13 +711,13 @@ void loop() {
   else {
 #if defined STATUSLED ^ defined STATUSLEDRGB
     if (playback.isPlaying) statusLedUpdate(SOLID, 0, 255, 0, 100);
-    else statusLedUpdate(PULSE, 0, 255, 0, 100);
+    else statusLedUpdate(DIMMED, 0, 255, 0, 100);
 #endif
   }
 #else
 #if defined STATUSLED ^ defined STATUSLEDRGB
   if (playback.isPlaying) statusLedUpdate(SOLID, 0, 255, 0, 100);
-  else statusLedUpdate(PULSE, 0, 255, 0, 100);
+  else statusLedUpdate(DIMMED, 0, 255, 0, 100);
 #endif
 #endif
 
@@ -2127,6 +2127,11 @@ void statusLedUpdate(uint8_t statusLedAction, uint8_t red, uint8_t green, uint8_
       case SOLID: {
           statusLedFade = 255;
           statusLedUpdateHal(red, green, blue, 255);
+          break;
+        }
+      case DIMMED: {
+          statusLedFade = 50;
+          statusLedUpdateHal(red, green, blue, 50);
           break;
         }
       case PULSE: {
