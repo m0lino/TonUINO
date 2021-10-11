@@ -678,8 +678,8 @@ void setup() {
       mp3.setVolume(playback.mp3CurrentVolume = preference.mp3StartVolume);
       mp3.setEq((DfMp3_Eq)(preference.mp3Equalizer - 1));
       shutdownTimer(START);
-      mp3.playMp3FolderTrack(809);
-      waitPlaybackToFinish(0, 255, 0, 100);
+//      mp3.playMp3FolderTrack(809);
+//      waitPlaybackToFinish(0, 255, 0, 100);
 #if defined PINCODE
     }
 #endif
@@ -992,10 +992,10 @@ void loop() {
     playNextTrack(0, false, true);
   }
   // button 0 (middle) hold for 5 sec or ir remote menu, only during (v)story, (v)album, (v)party and single mode while playing: toggle single track repeat
-  else if (((inputEvent == B0H && !playback.isLocked) || inputEvent == IRM) && (playback.currentTag.mode == STORY || playback.currentTag.mode == ALBUM || playback.currentTag.mode == PARTY || playback.currentTag.mode == SINGLE || playback.currentTag.mode == VSTORY || playback.currentTag.mode == VALBUM || playback.currentTag.mode == VPARTY) && playback.isPlaying) {
-    Serial.print(F("repeat "));
-    if ((playback.isRepeat = !playback.isRepeat)) {
-      Serial.println(F("on"));
+//  else if (((inputEvent == B0H && !playback.isLocked) || inputEvent == IRM) && (playback.currentTag.mode == STORY || playback.currentTag.mode == ALBUM || playback.currentTag.mode == PARTY || playback.currentTag.mode == SINGLE || playback.currentTag.mode == VSTORY || playback.currentTag.mode == VALBUM || playback.currentTag.mode == VPARTY) && playback.isPlaying) {
+//    Serial.print(F("repeat "));
+//    if ((playback.isRepeat = !playback.isRepeat)) {
+//      Serial.println(F("on"));
 #if defined STATUSLED ^ defined STATUSLEDRGB
       statusLedUpdate(BURST4, 255, 255, 255, 0);
 #endif
@@ -1022,6 +1022,10 @@ void loop() {
   else if (((inputEvent == B0H && !playback.isLocked) || inputEvent == IRM) && !playback.isPlaying) {
     parentsMenu();
     Serial.println(F("ready"));
+  }
+  // button 2 (volume down) hold for 5 sec or ir remote menu while not playing: shutdown
+  else if (((inputEvent == B2H && !playback.isLocked) || inputEvent == IRM) && !playback.isPlaying) {
+    Serial.println(F("shutdown"));
   }
   // # end - handle button or ir remote events during playback or while waiting for nfc tags
   // #######################################################################################
