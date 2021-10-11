@@ -991,32 +991,15 @@ void loop() {
     Serial.println(F("prev"));
     playNextTrack(0, false, true);
   }
-  // button 0 (middle) hold for 5 sec or ir remote menu, only during (v)story, (v)album, (v)party and single mode while playing: toggle single track repeat
+  // button 0 (middle) hold for 5 sec or ir remote menu, only during (v)story, (v)album, (v)party and single mode while playing: manual shutdown
   else if (((inputEvent == B0H && !playback.isLocked) || inputEvent == IRM) && (playback.currentTag.mode == STORY || playback.currentTag.mode == ALBUM || playback.currentTag.mode == PARTY || playback.currentTag.mode == SINGLE || playback.currentTag.mode == VSTORY || playback.currentTag.mode == VALBUM || playback.currentTag.mode == VPARTY) && playback.isPlaying) {
-    Serial.print(F("repeat "));
-    if ((playback.isRepeat = !playback.isRepeat)) {
-      Serial.println(F("on"));
-#if defined STATUSLED ^ defined STATUSLEDRGB
-      statusLedUpdate(BURST4, 255, 255, 255, 0);
-#endif
-    }
-    else {
-      Serial.println(F("off"));
-#if defined STATUSLED ^ defined STATUSLEDRGB
-      statusLedUpdate(BURST8, 255, 255, 255, 0);
-#endif
-    }
+    Serial.println(F("manual shut"));
+    shutdownTimer(SHUTDOWN);
   }
-  // button 0 (middle) hold for 5 sec or ir remote menu, only during story book mode while playing: reset progress
+  // button 0 (middle) hold for 5 sec or ir remote menu, only during story book mode while playing: manual shutdown
   else if (((inputEvent == B0H && !playback.isLocked) || inputEvent == IRM) && playback.currentTag.mode == STORYBOOK && playback.isPlaying) {
-    playback.playListItem = 1;
-    Serial.print(F("reset "));
-    printModeFolderTrack(true);
-    EEPROM.update(playback.currentTag.folder, 0);
-    mp3.playFolderTrack(playback.currentTag.folder, playback.playList[playback.playListItem - 1]);
-#if defined STATUSLED ^ defined STATUSLEDRGB
-    statusLedUpdate(BURST8, 255, 0, 255, 0);
-#endif
+    Serial.println(F("manual shut"));
+    shutdownTimer(SHUTDOWN);
   }
   // button 0 (middle) hold for 5 sec or ir remote menu while not playing: parents menu
   else if (((inputEvent == B0H && !playback.isLocked) || inputEvent == IRM) && !playback.isPlaying) {
