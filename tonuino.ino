@@ -1010,7 +1010,7 @@ void loop() {
    // button 2 (left) hold for 5 sec or button 4 press or ir remote left while not playing: manual shutdown
   else if (((inputEvent == B2H && !playback.isLocked) || inputEvent == IRM) && !playback.isPlaying) {
     Serial.println(F("manual shut"));
-    shutdownThimer(SHUTDOWN);
+    shutdownTimer(SHUTDOWN);
   }
 
   // # end - handle button or ir remote events during playback or while waiting for nfc tags
