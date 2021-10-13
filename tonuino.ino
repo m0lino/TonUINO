@@ -14,6 +14,7 @@
   During idle:
   ------------
   Hold B0 for 5 seconds - Enter parents menu
+  Hold B2 for 5 seconds - Power Off
 
   During playback:
   ----------------
@@ -223,7 +224,7 @@
 // #define IRREMOTE
 
 // uncomment the below line to enable pin code support
-// #define PINCODE
+ #define PINCODE
 
 // uncomment ONE OF THE BELOW TWO LINES to enable status led support
 // the first enables support for a vanilla led
@@ -986,11 +987,11 @@ void loop() {
     Serial.println(F("next"));
     playNextTrack(0, true, true);
   }
-  // button 2 (left) hold for 2 sec or button 4 press or ir remote left, only during (v)album, (v)party and story book mode while playing: previous track
-  else if ((((inputEvent == B2H || inputEvent == B3P) && !playback.isLocked) || inputEvent == IRL) && (playback.currentTag.mode == ALBUM || playback.currentTag.mode == PARTY || playback.currentTag.mode == STORYBOOK || playback.currentTag.mode == VALBUM || playback.currentTag.mode == VPARTY) && playback.isPlaying) {
-    Serial.println(F("prev"));
-    playNextTrack(0, false, true);
-  }
+//  // button 2 (left) hold for 2 sec or button 4 press or ir remote left, only during (v)album, (v)party and story book mode while playing: previous track
+//  else if ((((inputEvent == B2H || inputEvent == B3P) && !playback.isLocked) || inputEvent == IRL) && (playback.currentTag.mode == ALBUM || playback.currentTag.mode == PARTY || playback.currentTag.mode == STORYBOOK || playback.currentTag.mode == VALBUM || playback.currentTag.mode == VPARTY) && playback.isPlaying) {
+//    Serial.println(F("prev"));
+//    playNextTrack(0, false, true);
+//  }
   // button 0 (middle) hold for 5 sec or ir remote menu, only during (v)story, (v)album, (v)party and single mode while playing: manual shutdown
   else if (((inputEvent == B0H && !playback.isLocked) || inputEvent == IRM) && (playback.currentTag.mode == STORY || playback.currentTag.mode == ALBUM || playback.currentTag.mode == PARTY || playback.currentTag.mode == SINGLE || playback.currentTag.mode == VSTORY || playback.currentTag.mode == VALBUM || playback.currentTag.mode == VPARTY) && playback.isPlaying) {
     Serial.println(F("manual shut"));
@@ -1005,6 +1006,11 @@ void loop() {
   else if (((inputEvent == B0H && !playback.isLocked) || inputEvent == IRM) && !playback.isPlaying) {
     parentsMenu();
     Serial.println(F("ready"));
+  }
+   // button 2 (left) hold for 5 sec or button 4 press or ir remote left while not playing: manual shutdown
+  else if (((inputEvent == B2H && !playback.isLocked) || inputEvent == IRM) && !playback.isPlaying) {
+    Serial.println(F("manual shut"));
+    shutdownThimer(SHUTDOWN);
   }
 
   // # end - handle button or ir remote events during playback or while waiting for nfc tags
@@ -1184,12 +1190,12 @@ void switchButtonConfiguration(uint8_t buttonMode) {
         button2Config.setFeature(ButtonConfig::kFeatureClick);
         button2Config.setFeature(ButtonConfig::kFeatureSuppressAfterClick);
         button2Config.setClickDelay(buttonClickDelay);
-#if not defined FIVEBUTTONS
+//#if not defined FIVEBUTTONS > uncommented in order to make manual shutdown possible with long press
         // only enable long press on button 2 (left) when in 3 button mode
         button2Config.setFeature(ButtonConfig::kFeatureLongPress);
         button2Config.setFeature(ButtonConfig::kFeatureSuppressAfterLongPress);
         button2Config.setLongPressDelay(buttonShortLongPressDelay);
-#endif
+//#endif > uncommented in order to make manual shutdown possible with long press
 #if defined FIVEBUTTONS
         // optional 4th button
         button3Config.setEventHandler(translateButtonInput);
