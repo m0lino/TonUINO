@@ -19,9 +19,9 @@
   During playback:
   ----------------
   Hold B0 for 5 seconds - Reset progress to track 1 (story book mode)
-  Hold B0 for 5 seconds - Single track repeat (all modes, except story book mode)
-  Hold B1 for 2 seconds - Skip to the next track ((v)album, (v)party and story book mode)
-  Hold B2 for 2 seconds - Skip to the previous track ((v)album, (v)party and story book mode)
+//  Hold B0 for 5 seconds - Single track repeat (all modes, except story book mode)
+//  Hold B1 for 2 seconds - Skip to the next track ((v)album, (v)party and story book mode)
+//  Hold B2 for 2 seconds - Skip to the previous track ((v)album, (v)party and story book mode)
 
   During parents menu:
   --------------------
@@ -982,25 +982,26 @@ void loop() {
     else statusLedUpdate(BURST2, 255, 0, 0, 0);
 #endif
   }
-  // button 1 (right) hold for 2 sec or button 5 press or ir remote right, only during (v)album, (v)party and story book mode while playing: next track
-  else if ((((inputEvent == B1H || inputEvent == B4P) && !playback.isLocked) || inputEvent == IRR) && (playback.currentTag.mode == ALBUM || playback.currentTag.mode == PARTY || playback.currentTag.mode == STORYBOOK || playback.currentTag.mode == VALBUM || playback.currentTag.mode == VPARTY) && playback.isPlaying) {
-    Serial.println(F("next"));
-    playNextTrack(0, true, true);
-  }
+//  // button 1 (right) hold for 2 sec or button 5 press or ir remote right, only during (v)album, (v)party and story book mode while playing: next track
+//  else if ((((inputEvent == B1H || inputEvent == B4P) && !playback.isLocked) || inputEvent == IRR) && (playback.currentTag.mode == ALBUM || playback.currentTag.mode == PARTY || playback.currentTag.mode == STORYBOOK || playback.currentTag.mode == VALBUM || playback.currentTag.mode == VPARTY) && playback.isPlaying) {
+//    Serial.println(F("next"));
+//   playNextTrack(0, true, true);
+//  }
 //  // button 2 (left) hold for 2 sec or button 4 press or ir remote left, only during (v)album, (v)party and story book mode while playing: previous track
 //  else if ((((inputEvent == B2H || inputEvent == B3P) && !playback.isLocked) || inputEvent == IRL) && (playback.currentTag.mode == ALBUM || playback.currentTag.mode == PARTY || playback.currentTag.mode == STORYBOOK || playback.currentTag.mode == VALBUM || playback.currentTag.mode == VPARTY) && playback.isPlaying) {
 //    Serial.println(F("prev"));
 //    playNextTrack(0, false, true);
 //  }
-  // button 0 (middle) hold for 5 sec or ir remote menu, only during (v)story, (v)album, (v)party and single mode while playing: manual shutdown
-  else if (((inputEvent == B0H && !playback.isLocked) || inputEvent == IRM) && (playback.currentTag.mode == STORY || playback.currentTag.mode == ALBUM || playback.currentTag.mode == PARTY || playback.currentTag.mode == SINGLE || playback.currentTag.mode == VSTORY || playback.currentTag.mode == VALBUM || playback.currentTag.mode == VPARTY) && playback.isPlaying) {
-    Serial.println(F("manual shut"));
-    shutdownTimer(SHUTDOWN);
-  }
-  // button 0 (middle) hold for 5 sec or ir remote menu, only during story book mode while playing: manual shutdown
+  // button 0 (middle) hold for 5 sec or ir remote menu, only during story book mode while playing: reset progress
   else if (((inputEvent == B0H && !playback.isLocked) || inputEvent == IRM) && playback.currentTag.mode == STORYBOOK && playback.isPlaying) {
-    Serial.println(F("manual shut"));
-    shutdownTimer(SHUTDOWN);
+    playback.playListItem = 1;
+    Serial.print(F("reset "));
+    printModeFolderTrack(true);
+    EEPROM.update(playback.currentTag.folder, 0);
+    mp3.playFolderTrack(playback.currentTag.folder, playback.playList[playback.playListItem - 1]);
+#if defined STATUSLED ^ defined STATUSLEDRGB
+    statusLedUpdate(BURST8, 255, 0, 255, 0);
+#endif
   }
   // button 0 (middle) hold for 5 sec or ir remote menu while not playing: parents menu
   else if (((inputEvent == B0H && !playback.isLocked) || inputEvent == IRM) && !playback.isPlaying) {
