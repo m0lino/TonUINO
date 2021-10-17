@@ -982,16 +982,16 @@ void loop() {
     else statusLedUpdate(BURST2, 255, 0, 0, 0);
 #endif
   }
-//  // button 1 (right) hold for 2 sec or button 5 press or ir remote right, only during (v)album, (v)party and story book mode while playing: next track
-//  else if ((((inputEvent == B1H || inputEvent == B4P) && !playback.isLocked) || inputEvent == IRR) && (playback.currentTag.mode == ALBUM || playback.currentTag.mode == PARTY || playback.currentTag.mode == STORYBOOK || playback.currentTag.mode == VALBUM || playback.currentTag.mode == VPARTY) && playback.isPlaying) {
-//    Serial.println(F("next"));
-//   playNextTrack(0, true, true);
-//  }
-//  // button 2 (left) hold for 2 sec or button 4 press or ir remote left, only during (v)album, (v)party and story book mode while playing: previous track
-//  else if ((((inputEvent == B2H || inputEvent == B3P) && !playback.isLocked) || inputEvent == IRL) && (playback.currentTag.mode == ALBUM || playback.currentTag.mode == PARTY || playback.currentTag.mode == STORYBOOK || playback.currentTag.mode == VALBUM || playback.currentTag.mode == VPARTY) && playback.isPlaying) {
-//    Serial.println(F("prev"));
-//    playNextTrack(0, false, true);
-//  }
+  // button 5 press or ir remote right, only during (v)album, (v)party and story book mode while playing: next track
+  else if ((((inputEvent == B4P) && !playback.isLocked) || inputEvent == IRR) && (playback.currentTag.mode == ALBUM || playback.currentTag.mode == PARTY || playback.currentTag.mode == STORYBOOK || playback.currentTag.mode == VALBUM || playback.currentTag.mode == VPARTY) && playback.isPlaying) {
+    Serial.println(F("next"));
+   playNextTrack(0, true, true);
+  }
+  // button 4 press or ir remote left, only during (v)album, (v)party and story book mode while playing: previous track
+  else if ((((inputEvent == B3P) && !playback.isLocked) || inputEvent == IRL) && (playback.currentTag.mode == ALBUM || playback.currentTag.mode == PARTY || playback.currentTag.mode == STORYBOOK || playback.currentTag.mode == VALBUM || playback.currentTag.mode == VPARTY) && playback.isPlaying) {
+    Serial.println(F("prev"));
+    playNextTrack(0, false, true);
+  }
   // button 0 (middle) hold for 5 sec or ir remote menu, only during story book mode while playing: reset progress
   else if (((inputEvent == B0H && !playback.isLocked) || inputEvent == IRM) && playback.currentTag.mode == STORYBOOK && playback.isPlaying) {
     playback.playListItem = 1;
