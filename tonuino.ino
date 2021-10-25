@@ -2,11 +2,11 @@
   basic button actions:
   =====================
 
-  Button B0 (by default pin A0, middle button on the original TonUINO): play/pause
-  Button B1 (by default pin A4, right button on the original TonUINO): volume up
-  Button B2 (by default pin A3, left button on the original TonUINO): volume down
-  Button B3 (by default pin A1, optional): previous track
-  Button B4 (by default pin A2, optional): next track
+  Button B0 (pin A0, middle button on the original TonUINO): play/pause
+  Button B1 (pin A4, right button on the original TonUINO): volume up
+  Button B2 (pin A3, left button on the original TonUINO): volume down
+  Button B3 (pin A1, optional): previous track
+  Button B4 (pin A2, optional): next track
 
   additional button actions:
   ==========================
@@ -361,6 +361,8 @@ const uint8_t irRemoteCodeCount = sizeof(irRemoteCodes) / (2 * irRemoteCount);
 const float shutdownMinVoltage = 8.0;                        // minimum expected voltage level (in volts)
 const float shutdownWarnVoltage = 9.0;                       // warning voltage level (in volts)
 const float shutdownMaxVoltage = 12.0;                       // maximum expected voltage level (in volts)
+const float r1 = 10000;                                      // resistance of resistor r1 (default 10k)
+const float r2 = 1000;                                       // resistance of resistor r2 (default 1k)
 const float shutdownVoltageCorrection = 1.0 / 1.0;           // voltage measured by multimeter divided by reported voltage
 #endif
 
@@ -546,7 +548,7 @@ WS2812 rgbLed(statusLedCount);                                                //
 #if defined LOWVOLTAGE
 // Vcc shutdownVoltage(shutdownVoltageCorrection);                               // create Vcc instance
 float getCurrentVoltage() {
-  return analogRead(voltagecontrolPin)*50.0/1024.0*shutdownVoltageCorrection;
+  return analogRead(voltagecontrolPin)*5.0/1024.0/r2*(r1+r2)*shutdownVoltageCorrection;
 }
 #endif
 
@@ -2121,8 +2123,8 @@ void statusLedUpdate(uint8_t statusLedAction, uint8_t red, uint8_t green, uint8_
           break;
         }
       case DIMMED: {
-          statusLedFade = 50;
-          statusLedUpdateHal(red, green, blue, 50);
+          statusLedFade = 25;
+          statusLedUpdateHal(red, green, blue, 25);
           break;
         }
       case PULSE: {
