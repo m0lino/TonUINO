@@ -360,6 +360,8 @@ const uint8_t irRemoteCodeCount = sizeof(irRemoteCodes) / (2 * irRemoteCount);
 const float shutdownMinVoltage = 8.0;                        // minimum expected voltage level (in volts)
 const float shutdownWarnVoltage = 9.0;                       // warning voltage level (in volts)
 const float shutdownMaxVoltage = 12.0;                       // maximum expected voltage level (in volts)
+const float r1 = 10000;                                      // resistance of resistor r1 (default 10k)
+const float r2 = 1000;                                       // resistance of resistor r2 (default 1k)
 const float shutdownVoltageCorrection = 1.0 / 1.0;           // voltage measured by multimeter divided by reported voltage
 #endif
 
@@ -545,7 +547,7 @@ WS2812 rgbLed(statusLedCount);                                                //
 #if defined LOWVOLTAGE
 // Vcc shutdownVoltage(shutdownVoltageCorrection);                               // create Vcc instance
 float getCurrentVoltage() {
-  return analogRead(voltagecontrolPin)*50.0/1024.0*shutdownVoltageCorrection;
+  return analogRead(voltagecontrolPin)*5.0/1024.0/r2*(r1+r2)*shutdownVoltageCorrection;
 }
 #endif
 
