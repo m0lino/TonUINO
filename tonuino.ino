@@ -1010,7 +1010,13 @@ void loop() {
     parentsMenu();
     Serial.println(F("ready"));
   }
-   // button 2 (left) hold for 5 sec or button 4 press or ir remote left while not playing: manual shutdown
+   // button 1 (right) hold for 5 sec or ir remote right while not playing: play sd version
+  else if (((inputEvent == B1H && !playback.isLocked) || inputEvent == IRM) && !playback.isPlaying) {
+    Serial.println(F("play sd version"));
+    mp3.playMp3FolderTrack(812);
+    waitPlaybackToFinish(0, 255, 0, 100);
+  }
+   // button 2 (left) hold for 5 sec or ir remote left while not playing: manual shutdown
   else if (((inputEvent == B2H && !playback.isLocked) || inputEvent == IRM) && !playback.isPlaying) {
     Serial.println(F("manual shut"));
     shutdownTimer(SHUTDOWN);
@@ -1182,12 +1188,12 @@ void switchButtonConfiguration(uint8_t buttonMode) {
         button1Config.setFeature(ButtonConfig::kFeatureClick);
         button1Config.setFeature(ButtonConfig::kFeatureSuppressAfterClick);
         button1Config.setClickDelay(buttonClickDelay);
-#if not defined FIVEBUTTONS
+//#if not defined FIVEBUTTONS > uncommented in order to make play sd version possible with long press
         // only enable long press on button 1 (right) when in 3 button mode
         button1Config.setFeature(ButtonConfig::kFeatureLongPress);
         button1Config.setFeature(ButtonConfig::kFeatureSuppressAfterLongPress);
         button1Config.setLongPressDelay(buttonShortLongPressDelay);
-#endif
+//#endif > uncommented in order to make play sd version possible with long press
         // button 2 (left)
         button2Config.setEventHandler(translateButtonInput);
         button2Config.setFeature(ButtonConfig::kFeatureClick);
